@@ -22,6 +22,42 @@ const TILES = {
     STAIRS: '<span class="text-yellow-400 font-bold">&gt;</span>'
 };
 
+// Enemy types with different stats and appearances
+const ENEMY_TYPES = {
+    slime: {
+        name: 'スライム',
+        symbol: '<span class="text-green-400 font-bold">s</span>',
+        hp: 2,
+        maxHp: 2,
+        damage: 1,
+        minFloor: 1
+    },
+    goblin: {
+        name: 'ゴブリン',
+        symbol: '<span class="text-red-500 font-bold">g</span>',
+        hp: 3,
+        maxHp: 3,
+        damage: 1,
+        minFloor: 2
+    },
+    orc: {
+        name: 'オーク',
+        symbol: '<span class="text-orange-500 font-bold">o</span>',
+        hp: 5,
+        maxHp: 5,
+        damage: 2,
+        minFloor: 4
+    },
+    dragon: {
+        name: 'ドラゴン',
+        symbol: '<span class="text-purple-500 font-bold">D</span>',
+        hp: 10,
+        maxHp: 10,
+        damage: 3,
+        minFloor: 7
+    }
+};
+
 // --- Game State ---
 let map, player, monsters, items;
 let gameOver = true, turn = 0, floor = 0, maxFloor = 0;
@@ -174,6 +210,33 @@ function placePlayer() {
     return { x, y };
 }
 
+function selectEnemyType(currentFloor) {
+    // Get available enemy types for current floor
+    const availableTypes = Object.entries(ENEMY_TYPES)
+        .filter(([_, enemy]) => currentFloor >= enemy.minFloor)
+        .map(([key, enemy]) => ({ key, ...enemy }));
+    
+    if (availableTypes.length === 0) {
+        // Default to slime if no enemies available
+        return { ...ENEMY_TYPES.slime };
+    }
+    
+    // Weight selection towards newer enemy types on higher floors
+    const weights = availableTypes.map((_, index) => index + 1);
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (let i = 0; i < availableTypes.length; i++) {
+        random -= weights[i];
+        if (random <= 0) {
+            return { ...availableTypes[i] };
+        }
+    }
+    
+    // Fallback to last available type
+    return { ...availableTypes[availableTypes.length - 1] };
+}
+
 function placeEntities(count, type) {
     const maxCount = count < 0 ? 0 : count;
     for (let i = 0; i < maxCount; i++) {
@@ -187,7 +250,13 @@ function placeEntities(count, type) {
         if (attempts >= 100) continue; 
 
         if (type === 'monster') {
-            monsters.push({ x, y, hp: 3, maxHp: 3 });
+            const enemyType = selectEnemyType(floor);
+            monsters.push({ 
+                x, 
+                y, 
+                ...enemyType,
+                type: enemyType.name
+            });
         } else if (type === 'potion') {
             items.push({ x, y, type: 'potion' });
         } else if (type === 'stairs') {
@@ -219,7 +288,7 @@ function drawMap() {
             if (player.x === x && player.y === y) {
                 row += TILES.PLAYER;
             } else if (monster) {
-                row += TILES.MONSTER;
+                row += monster.symbol;
             } else if (item) {
                 row += item.type === 'potion' ? TILES.POTION : TILES.STAIRS;
             } else {
@@ -326,10 +395,10 @@ function canMoveTo(monster, x, y) {
 }
 
 function attack(attacker, defender) {
-    const damage = 1; 
+    const damage = attacker === player ? 1 : (attacker.damage || 1);
     defender.hp -= damage;
-    const attackerName = attacker === player ? 'プレイヤー' : 'ゴブリン';
-    const defenderName = defender === player ? 'プレイヤー' : 'ゴブリン';
+    const attackerName = attacker === player ? 'プレイヤー' : attacker.type;
+    const defenderName = defender === player ? 'プレイヤー' : defender.type;
     addLog(`${attackerName}は${defenderName}に${damage}のダメージを与えた！`);
     if (defender.hp <= 0) {
         addLog(`${defenderName}を倒した！`);
