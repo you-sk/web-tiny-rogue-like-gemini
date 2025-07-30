@@ -1,6 +1,9 @@
 # 簡易ローグライクゲーム
 
-ブラウザで動作するシンプルなローグライクゲームです。
+ブラウザで動作するシンプルなローグライクゲームです。  
+<img width="1042" height="774" alt="image" src="https://github.com/user-attachments/assets/fd70e74e-e436-45d8-afcb-960d8e679de5" />
+https://you-sk.github.io/web-tiny-rogue-like-gemini/
+
 
 ## 概要
 
@@ -49,3 +52,7 @@
 - CSS3 (Tailwind CSS)
 - JavaScript (Vanilla)
 - Font: M PLUS 1 Code
+
+## ライセンス
+
+MITライセンスで公開しています。
