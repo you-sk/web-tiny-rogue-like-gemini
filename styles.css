@@ -1,0 +1,46 @@
+body {
+    font-family: 'M PLUS 1 Code', monospace;
+    overscroll-behavior: none; /* Disable pull-to-refresh */
+}
+
+.touch-control {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    user-select: none;
+    cursor: pointer;
+}
+
+.touch-control:active {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+#map-container {
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    overflow: hidden;
+    font-size: clamp(12px, 3vw, 20px);
+    min-height: 320px; /* Ensure a consistent height */
+}
+
+#map-container.initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
